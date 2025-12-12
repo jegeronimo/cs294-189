@@ -7,8 +7,10 @@ This module provides a widget for viewing ham and spam emails from the dataset.
 import ipywidgets as widgets
 from IPython.display import display
 import random
+import pandas as pd
 from pathlib import Path
 
+### PROJECT B0
 
 class EmailViewer:
     """Interactive widget for viewing ham and spam emails with navigation."""
@@ -204,4 +206,72 @@ def load_email_files(ham_dir='data/ham', spam_dir='data/spam'):
     spam_files = sorted(spam_files_raw, key=sort_key)
     
     return ham_files, spam_files
+
+### PROJECT B1
+
+def read_subject_and_body(txt_path: Path):
+    """
+    Returns (subject_line, body_text).
+    Assumes first line is the subject and the rest is the body.
+    """
+    text = txt_path.read_text(encoding="utf-8", errors="ignore")
+    lines = text.splitlines()
+    if not lines:
+        return "", ""
+    subject = lines[0].strip()
+    body = "\n".join(lines[1:]).strip()
+    return subject, body
+
+def sort_key_numeric_stem(path: Path):
+    """Sort files by numeric filename if possible (e.g., 1.txt, 2.txt, ...)."""
+    try:
+        return int(path.stem)
+    except ValueError:
+        return float("inf")
+
+def load_spam_ham_dataset(base_dir="data", lowercase=True, load_test=True):
+    """
+    Builds:
+      - original_training_data: columns [id, subject, email, spam]
+      - test: columns [id, subject, email]  (if load_test=True)
+
+    Folder layout expected:
+      base_dir/ham/*.txt
+      base_dir/spam/*.txt
+      base_dir/test/*.txt
+    """
+    base = Path(base_dir)
+
+    ham_files = sorted((base / "ham").rglob("*.txt"), key=sort_key_numeric_stem)
+    spam_files = sorted((base / "spam").rglob("*.txt"), key=sort_key_numeric_stem)
+
+    rows = []
+    for p in ham_files:
+        subject, body = read_subject_and_body(p)
+        rows.append({"subject": subject, "email": body, "spam": 0})
+
+    for p in spam_files:
+        subject, body = read_subject_and_body(p)
+        rows.append({"subject": subject, "email": body, "spam": 1})
+
+    original_training_data = pd.DataFrame(rows).reset_index(drop=True)
+    original_training_data.insert(0, "id", original_training_data.index.astype(int))
+
+    if lowercase:
+        original_training_data["email"] = original_training_data["email"].str.lower()
+
+    test = None
+    if load_test:
+        test_files = sorted((base / "test").rglob("*.txt"), key=sort_key_numeric_stem)
+        test_rows = []
+        for p in test_files:
+            subject, body = read_subject_and_body(p)
+            test_rows.append({"subject": subject, "email": body})
+        test = pd.DataFrame(test_rows).reset_index(drop=True)
+        test.insert(0, "id", test.index.astype(int))
+        if lowercase:
+            test["email"] = test["email"].str.lower()
+
+    return original_training_data, test
+
 
