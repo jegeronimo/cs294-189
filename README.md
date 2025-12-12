@@ -6,4 +6,4 @@ Project B0
 - [Notebook](https://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fjegeronimo%2Fcs294-189&branch=main&urlpath=lab%2Ftree%2Fcs294-189%2FprojB0.ipynb)
 
 Project B1
-- [Notebook]
+- [Notebook](https://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fjegeronimo%2Fcs294-189&branch=main&urlpath=lab%2Ftree%2Fcs294-189%2FprojB1.ipynb)
